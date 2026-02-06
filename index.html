@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>重复信任博弈实验</title>
+    <!-- 引入 SheetJS 库以生成 Excel 文件 -->
+    <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Microsoft YaHei', Arial, sans-serif;
+            background-color: #f5f5f5;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 800px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        h1 {
+            font-size: 42px;
+            color: #2c3e50;
+            margin-bottom: 30px;
+            font-weight: 700;
+        }
+        
+        p {
+            font-size: 28px;
+            line-height: 1.6;
+            color: #34495e;
+            margin-bottom: 25px;
+        }
+        
+        .instructions {
+            font-size: 26px;
+            line-height: 1.6;
+            text-align: left;
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .button-container {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-top: 40px;
+        }
+        
+        .button {
+            padding: 18px 35px;
+            font-size: 26px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            min-width: 160px;
+            flex: 1;
+            max-width: 280px;
+        }
+        
+        .button-primary {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .button-primary:hover {
+            background-color: #2980b9;
+            transform: translateY(-3px);
+        }
+        
+        .button-secondary {
+            background-color: #95a5a6;
+            color: white;
+        }
+        
+        .button-secondary:hover {
+            background-color: #7f8c8d;
+            transform: translateY(-3px);
+        }
+        
+        .button-success {
+            background-color: #2ecc71;
+            color: white;
+            font-size: 28px;
+            padding: 20px 40px;
+        }
+        
+        .button-success:hover {
+            background-color: #27ae60;
+            transform: translateY(-3px);
+        }
+        
+        .rating-container {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+            flex-wrap: wrap;
+        }
+        
+        .rating-item {
+            flex: 0 0 100%;
+            margin-bottom: 30px;
+        }
+        
+        .rating-label {
+            font-size: 26px;
+            margin-bottom: 25px;
+            color: #2c3e50;
+            text-align: center;
+        }
+        
+        .rating-scale {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .rating-button {
+            width: 70px;
+            height: 70px;
+            border: 4px solid #3498db;
+            background-color: white;
+            border-radius: 50%;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .rating-button:hover, .rating-button.selected {
+            background-color: #3498db;
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .rating-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+            font-size: 22px;
+            color: #7f8c8d;
+            padding: 0 20px;
+        }
+        
+        .fixation {
+            font-size: 80px;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 60px 0;
+        }
+        
+        .decision-container {
+            margin: 30px 0;
+        }
+        
+        .avatar {
+            width: 200px;
+            height: 200px;
+            background-color: #ecf0f1;
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 80px;
+            color: #7f8c8d;
+            border: 5px solid #bdc3c7;
+        }
+        
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+        }
+        
+        .decision-options {
+            display: flex;
+            justify-content: center;
+            gap: 60px;
+            margin-top: 40px;
+        }
+        
+        .decision-option {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .decision-button {
+            width: 200px;
+            height: 200px;
+            border: none;
+            border-radius: 15px;
+            font-size: 36px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 15px;
+        }
+        
+        .invest-button {
+            background-color: #2ecc71;
+            color: white;
+        }
+        
+        .invest-button:hover {
+            background-color: #27ae60;
+            transform: scale(1.05);
+        }
+        
+        .keep-button {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .keep-button:hover {
+            background-color: #c0392b;
+            transform: scale(1.05);
+        }
+        
+        .key-hint {
+            font-size: 24px;
+            color: #7f8c8d;
+            margin-top: 10px;
+        }
+        
+        .feedback {
+            font-size: 34px;
+            font-weight: bold;
+            margin: 40px 0;
+            padding: 30px;
+            border-radius: 15px;
+        }
+        
+        .success {
+            color: #27ae60;
+            background-color: rgba(46, 204, 113, 0.1);
+            border: 3px solid #2ecc71;
+        }
+        
+        .failure {
+            color: #e74c3c;
+            background-color: rgba(231, 76, 60, 0.1);
+            border: 3px solid #e74c3c;
+        }
+        
+        .waiting {
+            color: #f39c12;
+            background-color: rgba(243, 156, 18, 0.1);
+            border: 3px solid #f39c12;
+        }
+        
+        .bold {
+            font-weight: 900;
+            font-size: 36px;
+        }
+        
+        .progress-bar {
+            height: 12px;
+            background-color: #ecf0f1;
+            border-radius: 6px;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+        
+        .progress {
+            height: 100%;
+            background-color: #3498db;
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        .progress-text {
+            font-size: 24px;
+            color: #7f8c8d;
+            margin-bottom: 10px;
+        }
+        
+        .block-indicator {
+            font-size: 26px;
+            color: #3498db;
+            font-weight: bold;
+            margin-bottom: 20px;
+        }
+        
+        .practice-notice {
+            font-size: 30px;
+            color: #e67e22;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: rgba(230, 126, 34, 0.1);
+            border-radius: 10px;
+        }
+        
+        .data-info {
+            font-size: 22px;
+            color: #7f8c8d;
+            margin-top: 15px;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 36px;
+            }
+            
+            p, .instructions {
+                font-size: 24px;
+            }
+            
+            .button {
+                padding: 15px 25px;
+                font-size: 24px;
+                min-width: 140px;
+            }
+            
+            .button-success {
+                font-size: 24px;
+                padding: 18px 30px;
+            }
+            
+            .decision-options {
+                flex-direction: column;
+                gap: 30px;
+            }
+            
+            .decision-button {
+                width: 180px;
+                height: 180px;
+                font-size: 32px;
+            }
+            
+            .rating-scale {
+                gap: 15px;
+            }
+            
+            .rating-button {
+                width: 60px;
+                height: 60px;
+                font-size: 24px;
+            }
+        }
+        
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" id="container">
+        <!-- 欢迎页面 -->
+        <div id="welcome-screen">
+            <h1>欢迎参加实验！</h1>
+            <p>请点击开始按钮继续</p>
+            <div class="button-container">
+                <button class="button button-primary" id="start-button">开始实验</button>
+            </div>
+        </div>
+        
+        <!-- 情境介绍页面 -->
+        <div id="scenario-screen" class="hidden">
+            <p id="scenario-text"></p>
+            <div class="button-container">
+                <button class="button button-secondary" id="prev-button">返回上一页</button>
+                <button class="button button-primary" id="next-button">继续(J)</button>
+            </div>
+        </div>
+        
+        <!-- 评分页面1 -->
+        <div id="rating1-screen" class="hidden">
+            <p>在您刚才想象的情境中, 您认为自己在多大程度上是受他人帮助的受助者？</p>
+            <div class="rating-container">
+                <div class="rating-item">
+                    <div class="rating-label">受助程度</div>
+                    <div class="rating-scale" id="rating1-scale">
+                        <button class="rating-button" data-value="1">1</button>
+                        <button class="rating-button" data-value="2">2</button>
+                        <button class="rating-button" data-value="3">3</button>
+                        <button class="rating-button" data-value="4">4</button>
+                        <button class="rating-button" data-value="5">5</button>
+                        <button class="rating-button" data-value="6">6</button>
+                        <button class="rating-button" data-value="7">7</button>
+                    </div>
+                    <div class="rating-labels">
+                        <span>非常低</span>
+                        <span>非常高</span>
+                    </div>
+                </div>
+            </div>
+            <div class="button-container">
+                <button class="button button-secondary" id="rating1-prev">返回上一页</button>
+                <button class="button button-primary" id="rating1-next" disabled>继续</button>
+            </div>
+        </div>
+        
+        <!-- 评分页面2 -->
+        <div id="rating2-screen" class="hidden">
+            <p>在您刚才想象的情境中, 帮助行为发生的次数如何？多还是少？</p>
+            <div class="rating-container">
+                <div class="rating-item">
+                    <div class="rating-label">帮助次数</div>
+                    <div class="rating-scale" id="rating2-scale">
+                        <button class="rating-button" data-value="1">1</button>
+                        <button class="rating-button" data-value="2">2</button>
+                        <button class="rating-button" data-value="3">3</button>
+                        <button class="rating-button" data-value="4">4</button>
+                        <button class="rating-button" data-value="5">5</button>
+                        <button class="rating-button" data-value="6">6</button>
+                        <button class="rating-button" data-value="7">7</button>
+                    </div>
+                    <div class="rating-labels">
+                        <span>非常少</span>
+                        <span>非常多</span>
+                    </div>
+                </div>
+            </div>
+            <div class="button-container">
+                <button class="button button-secondary" id="rating2-prev">返回上一页</button>
+                <button class="button button-primary" id="rating2-next" disabled>继续</button>
+            </div>
+        </div>
+        
+        <!-- 注视点页面 -->
+        <div id="fixation-screen" class="hidden">
+            <div class="fixation">+</div>
+        </div>
+        
+        <!-- 指导语页面 -->
+        <div id="instruction-screen" class="hidden">
+            <h1>实验指导语</h1>
+            <div class="instructions">
+                <p>在本实验中，您将与另一名匿名参与者配对，重复进行多轮决策。</p>
+                <br>
+                <p>您的角色是投资方。每轮您将获得5元。您需要决定是否将这5元分享给对方：</p>
+                <br>
+                <p>若选择不分享，本轮结束。您获得5元，对方获得0元。</p>
+                <br>
+                <p>若选择分享，金额将三倍膨胀，对方将收到15元，并由对方决定是否回报：</p>
+                <br>
+                <p>若对方回报：您与对方各得7.5元。</p>
+                <br>
+                <p>若对方不回报：您得0元，对方得15元。</p>
+            </div>
+            <div class="button-container">
+                <button class="button button-primary" id="instruction-next">我明白了，开始练习</button>
+            </div>
+        </div>
+        
+        <!-- 练习开始提示 -->
+        <div id="practice-start-screen" class="hidden">
+            <h1>练习阶段</h1>
+            <p class="practice-notice">接下来将进行4次练习试次</p>
+            <p>在练习阶段，您将熟悉实验流程和操作方式。</p>
+            <p>练习试次不计入正式实验数据。</p>
+            <div class="button-container">
+                <button class="button button-primary" id="practice-start-button">开始练习</button>
+            </div>
+        </div>
+        
+        <!-- 决策页面 -->
+        <div id="decision-screen" class="hidden">
+            <div class="progress-text">进度: <span id="trial-count">0</span>/<span id="total-trials">64</span></div>
+            <div class="progress-bar">
+                <div class="progress" id="progress-bar"></div>
+            </div>
+            <div class="block-indicator" id="block-indicator"></div>
+            <div id="practice-indicator" class="practice-notice hidden">练习试次</div>
+            <p>您收到了初始资金5元</p>
+            <div class="avatar">
+                <div class="avatar-img"></div>
+            </div>
+            <p>受托方：老王</p>
+            <p>请您选择：</p>
+            <div class="decision-options">
+                <div class="decision-option">
+                    <button class="decision-button invest-button" id="invest-button">投资</button>
+                    <div class="key-hint">(按F键投资)</div>
+                </div>
+                <div class="decision-option">
+                    <button class="decision-button keep-button" id="keep-button">保留</button>
+                    <div class="key-hint">(按J键保留)</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 保留结果页面 -->
+        <div id="keep-result-screen" class="hidden">
+            <div class="feedback">
+                <p>您选择了<span class="bold">保留资金</span>，本轮未投资</p>
+            </div>
+            <div class="button-container">
+                <button class="button button-primary" id="keep-continue">继续(J)</button>
+            </div>
+        </div>
+        
+        <!-- 等待回应页面 -->
+        <div id="waiting-screen" class="hidden">
+            <div class="feedback waiting">
+                <p>您选择了<span class="bold">投资</span>，请等待老王回应....</p>
+            </div>
+        </div>
+        
+        <!-- 投资成功页面 -->
+        <div id="success-screen" class="hidden">
+            <div class="feedback success">
+                <p>受托方（老王）选择回报资金，本轮投资成功收益为7.5</p>
+            </div>
+            <div class="button-container">
+                <button class="button button-primary" id="success-continue">确认(J)</button>
+            </div>
+        </div>
+        
+        <!-- 投资失败页面 -->
+        <div id="failure-screen" class="hidden">
+            <div class="feedback failure">
+                <p>受托方（老王）选择独吞资金，本轮投资失败，收益为0</p>
+            </div>
+            <div class="button-container">
+                <button class="button button-primary" id="failure-continue">确认(J)</button>
+            </div>
+        </div>
+        
+        <!-- 练习结束页面 -->
+        <div id="practice-end-screen" class="hidden">
+            <h1>练习试次结束</h1>
+            <p class="practice-notice">接下来进入正式实验</p>
+            <p>正式实验包含60个试次，分为两个阶段。</p>
+            <p>请根据您的判断做出决策。</p>
+            <div class="button-container">
+                <button class="button button-primary" id="start-formal-button">开始正式实验</button>
+            </div>
+        </div>
+        
+        <!-- 实验结束页面 -->
+        <div id="end-screen" class="hidden">
+            <h1>感谢您参加本次实验！</h1>
+            <p>实验已完成，感谢您的参与！</p>
+            <p class="data-info">您的实验数据已生成，点击下方按钮可下载Excel格式的数据文件。</p>
+            <div class="button-container">
+                <button class="button button-success" id="download-data-btn">下载实验数据 (Excel)</button>
+                <button class="button button-secondary" onclick="location.reload()">重新开始实验</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 实验数据存储
+        const experimentData = {
+            participantId: Date.now().toString(),
+            startTime: new Date().toISOString(),
+            ratings: {
+                helpReceived: null,
+                helpFrequency: null
+            },
+            trials: [],
+            currentTrial: 0,
+            practiceTrials: 4,
+            formalTrials: 60,
+            totalTrials: 64,
+            blockType: null,
+            blockOrder: [],
+            currentBlock: 0,
+            isPractice: true,
+            trialStartTime: null,
+            currentTrialInBlock: 0
+        };
+
+        // 屏幕元素
+        const screens = {
+            welcome: document.getElementById('welcome-screen'),
+            scenario: document.getElementById('scenario-screen'),
+            rating1: document.getElementById('rating1-screen'),
+            rating2: document.getElementById('rating2-screen'),
+            fixation: document.getElementById('fixation-screen'),
+            instruction: document.getElementById('instruction-screen'),
+            practiceStart: document.getElementById('practice-start-screen'),
+            decision: document.getElementById('decision-screen'),
+            keepResult: document.getElementById('keep-result-screen'),
+            waiting: document.getElementById('waiting-screen'),
+            success: document.getElementById('success-screen'),
+            failure: document.getElementById('failure-screen'),
+            practiceEnd: document.getElementById('practice-end-screen'),
+            end: document.getElementById('end-screen')
+        };
+
+        // 情境文本
+        const scenarioTexts = [
+            "您好, 现在请您想象以下情境: 您所在的社区正在实施\"时间银行互助养老\"服务项目。在这个项目中, 有一位名叫老王的志愿服务者。您确认明白后，点击\"继续(J)\"。",
+            "在过去半年里, 老王经常为您提供志愿服务, 累计帮助您约40次。老王经常帮您买菜、陪您聊天、协助您处理手机问题、陪您去医院看病等。每当您需要帮助时, 老王总是及时出现, 耐心细致地为您服务。您确认明白后，点击\"继续\"。",
+            "而现在, 您将和老王一起进行一场投资游戏。您确认明白后，点击\"继续\"。"
+        ];
+
+        // 实验变量
+        let currentScenario = 0;
+        let currentRating1 = null;
+        let currentRating2 = null;
+        let blockTypes = ['high-to-low', 'low-to-high'];
+        
+        // 随机分配block顺序
+        experimentData.blockOrder = [...blockTypes].sort(() => Math.random() - 0.5);
+        experimentData.blockType = experimentData.blockOrder[0];
+
+        // 显示指定屏幕
+        function showScreen(screenName) {
+            // 隐藏所有屏幕
+            Object.values(screens).forEach(screen => {
+                if (screen) {
+                    screen.classList.add('hidden');
+                }
+            });
+            
+            // 检查屏幕是否存在
+            if (!screens[screenName]) {
+                console.error(`屏幕 "${screenName}" 未找到！`);
+                return;
+            }
+            
+            // 显示目标屏幕
+            screens[screenName].classList.remove('hidden');
+            
+            // 特殊处理：如果是决策屏，记录开始时间
+            if (screenName === 'decision') {
+                experimentData.trialStartTime = Date.now();
+                
+                // 更新练习/正式实验标识
+                const practiceIndicator = document.getElementById('practice-indicator');
+                if (experimentData.isPractice) {
+                    if (practiceIndicator) practiceIndicator.classList.remove('hidden');
+                } else {
+                    if (practiceIndicator) practiceIndicator.classList.add('hidden');
+                }
+            }
+        }
+
+        // 更新进度条
+        function updateProgressBar() {
+            const progress = (experimentData.currentTrial / experimentData.totalTrials) * 100;
+            const progressBar = document.getElementById('progress-bar');
+            const trialCount = document.getElementById('trial-count');
+            const totalTrials = document.getElementById('total-trials');
+            const blockIndicator = document.getElementById('block-indicator');
+            
+            if (progressBar) progressBar.style.width = `${progress}%`;
+            if (trialCount) trialCount.textContent = `${experimentData.currentTrial}`;
+            if (totalTrials) totalTrials.textContent = `${experimentData.totalTrials}`;
+            
+            // 更新block指示器
+            if (experimentData.isPractice) {
+                if (blockIndicator) blockIndicator.textContent = "";
+            } else {
+                const blockNames = {
+                    'high-to-low': '由高到低组',
+                    'low-to-high': '由低到高组'
+                };
+                
+                // 计算当前block中的试次数
+                let blockTrialCount = experimentData.currentTrialInBlock;
+                if (experimentData.currentBlock === 1) {
+                    // 第二个block，减去第一个block的30个试次
+                    blockTrialCount = experimentData.currentTrial - experimentData.practiceTrials - 30;
+                }
+                
+                if (blockIndicator) {
+                    blockIndicator.textContent = 
+                        `${blockNames[experimentData.blockType]} (${blockTrialCount}/30)`;
+                }
+            }
+        }
+
+        // 根据当前试次计算成功概率
+        function getSuccessProbability() {
+            if (experimentData.isPractice) {
+                // 练习试次：50%成功概率
+                return 0.5;
+            } else {
+                // 正式试次
+                const blockType = experimentData.blockType;
+                const trialInBlock = experimentData.currentTrialInBlock;
+                
+                if (blockType === 'high-to-low') {
+                    // 由高到低组
+                    if (trialInBlock <= 15) {
+                        // 前15个试次：70%成功
+                        return 0.7;
+                    } else {
+                        // 后15个试次：50%成功
+                        return 0.5;
+                    }
+                } else {
+                    // 由低到高组
+                    if (trialInBlock <= 15) {
+                        // 前15个试次：30%成功
+                        return 0.3;
+                    } else {
+                        // 后15个试次：50%成功
+                        return 0.5;
+                    }
+                }
+            }
+        }
+
+        // 实验数据导出为Excel
+        function exportToExcel() {
+            // 准备数据行
+            const rows = [];
+            
+            // 为每个试次创建一行数据
+            experimentData.trials.forEach(trial => {
+                const row = {
+                    // 基本信息
+                    "被试ID": experimentData.participantId,
+                    "实验开始时间": experimentData.startTime,
+                    "受助程度评分": experimentData.ratings.helpReceived,
+                    "帮助次数评分": experimentData.ratings.helpFrequency,
+                    
+                    // 试次信息
+                    "试次编号": trial.trialNumber,
+                    "阶段": trial.isPractice ? "练习" : "正式",
+                    "组别类型": trial.blockType === 'high-to-low' ? '由高到低' : '由低到高',
+                    "组内试次序号": trial.blockTrial,
+                    "决策": trial.decision === 'invest' ? '投资' : '保留',
+                    "反应时(ms)": trial.reactionTime,
+                    "反馈": trial.feedback === 'success' ? '成功(回报)' : 
+                           trial.feedback === 'failure' ? '失败(独吞)' : 
+                           trial.feedback === 'none' ? '无(选择保留)' : trial.feedback,
+                    "收益": trial.earnings !== undefined ? trial.earnings : '',
+                    "成功概率": trial.successProbability !== undefined ? trial.successProbability : '',
+                    "时间戳": trial.timestamp
+                };
+                rows.push(row);
+            });
+            
+            // 如果没有任何试次数据，添加一行基本信息
+            if (rows.length === 0) {
+                rows.push({
+                    "被试ID": experimentData.participantId,
+                    "实验开始时间": experimentData.startTime,
+                    "受助程度评分": experimentData.ratings.helpReceived,
+                    "帮助次数评分": experimentData.ratings.helpFrequency,
+                    "试次编号": "无试次数据",
+                    "阶段": "",
+                    "组别类型": "",
+                    "组内试次序号": "",
+                    "决策": "",
+                    "反应时(ms)": "",
+                    "反馈": "",
+                    "收益": "",
+                    "成功概率": "",
+                    "时间戳": ""
+                });
+            }
+            
+            // 创建工作表
+            const worksheet = XLSX.utils.json_to_sheet(rows);
+            
+            // 创建工作簿
+            const workbook = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(workbook, worksheet, "实验数据");
+            
+            // 生成文件名
+            const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+            const filename = `信任博弈实验数据_${experimentData.participantId}_${timestamp}.xlsx`;
+            
+            // 导出文件
+            XLSX.writeFile(workbook, filename);
+        }
+
+        // 开始实验
+        document.getElementById('start-button').addEventListener('click', () => {
+            showScreen('scenario');
+            document.getElementById('scenario-text').textContent = scenarioTexts[0];
+        });
+
+        // 情境介绍导航
+        document.getElementById('next-button').addEventListener('click', () => {
+            if (currentScenario < scenarioTexts.length - 1) {
+                currentScenario++;
+                document.getElementById('scenario-text').textContent = scenarioTexts[currentScenario];
+            } else {
+                showScreen('rating1');
+            }
+        });
+
+        document.getElementById('prev-button').addEventListener('click', () => {
+            if (currentScenario > 0) {
+                currentScenario--;
+                document.getElementById('scenario-text').textContent = scenarioTexts[currentScenario];
+            } else {
+                showScreen('welcome');
+            }
+        });
+
+        // 评分1
+        const rating1Buttons = document.querySelectorAll('#rating1-scale .rating-button');
+        rating1Buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                // 移除所有选中状态
+                rating1Buttons.forEach(btn => btn.classList.remove('selected'));
+                // 添加当前选中状态
+                button.classList.add('selected');
+                currentRating1 = parseInt(button.getAttribute('data-value'));
+                experimentData.ratings.helpReceived = currentRating1;
+                document.getElementById('rating1-next').disabled = false;
+            });
+        });
+
+        document.getElementById('rating1-next').addEventListener('click', () => {
+            showScreen('rating2');
+        });
+
+        document.getElementById('rating1-prev').addEventListener('click', () => {
+            showScreen('scenario');
+        });
+
+        // 评分2
+        const rating2Buttons = document.querySelectorAll('#rating2-scale .rating-button');
+        rating2Buttons.forEach(button => {
+            button.addEventListener('click', () => {
+                // 移除所有选中状态
+                rating2Buttons.forEach(btn => btn.classList.remove('selected'));
+                // 添加当前选中状态
+                button.classList.add('selected');
+                currentRating2 = parseInt(button.getAttribute('data-value'));
+                experimentData.ratings.helpFrequency = currentRating2;
+                document.getElementById('rating2-next').disabled = false;
+            });
+        });
+
+        document.getElementById('rating2-next').addEventListener('click', () => {
+            showScreen('fixation');
+            setTimeout(() => {
+                showScreen('instruction');
+            }, 800);
+        });
+
+        document.getElementById('rating2-prev').addEventListener('click', () => {
+            showScreen('rating1');
+        });
+
+        // 指导语继续
+        document.getElementById('instruction-next').addEventListener('click', () => {
+            // 显示练习开始页面
+            showScreen('practiceStart');
+        });
+
+        // 开始练习
+        document.getElementById('practice-start-button').addEventListener('click', () => {
+            // 开始练习试次
+            experimentData.currentTrial = 1;
+            experimentData.isPractice = true;
+            experimentData.currentTrialInBlock = 1;
+            updateProgressBar();
+            showScreen('fixation');
+            setTimeout(() => {
+                showScreen('decision');
+            }, 800);
+        });
+
+        // 决策按钮事件
+        document.getElementById('invest-button').addEventListener('click', () => makeDecision('invest'));
+        document.getElementById('keep-button').addEventListener('click', () => makeDecision('keep'));
+
+        // 键盘事件监听
+        document.addEventListener('keydown', (event) => {
+            const key = event.key.toLowerCase();
+            
+            // 防止重复按键
+            if (event.repeat) return;
+            
+            // 根据当前屏幕处理按键
+            if (!screens.decision.classList.contains('hidden')) {
+                if (key === 'f') {
+                    makeDecision('invest');
+                } else if (key === 'j') {
+                    makeDecision('keep');
+                }
+            } else if (!screens.keepResult.classList.contains('hidden')) {
+                if (key === 'j') {
+                    nextTrial();
+                }
+            } else if (!screens.success.classList.contains('hidden')) {
+                if (key === 'j') {
+                    nextTrial();
+                }
+            } else if (!screens.failure.classList.contains('hidden')) {
+                if (key === 'j') {
+                    nextTrial();
+                }
+            } else if (!screens.scenario.classList.contains('hidden')) {
+                if (key === 'j') {
+                    document.getElementById('next-button').click();
+                }
+            } else if (!screens.practiceStart.classList.contains('hidden')) {
+                if (key === 'j') {
+                    document.getElementById('practice-start-button').click();
+                }
+            } else if (!screens.practiceEnd.classList.contains('hidden')) {
+                if (key === 'j') {
+                    document.getElementById('start-formal-button').click();
+                }
+            }
+        });
+
+        // 决策函数
+        function makeDecision(decision) {
+            const reactionTime = Date.now() - experimentData.trialStartTime;
+            
+            // 记录决策
+            const trialData = {
+                trialNumber: experimentData.currentTrial,
+                isPractice: experimentData.isPractice,
+                blockType: experimentData.blockType,
+                blockTrial: experimentData.currentTrialInBlock,
+                decision: decision,
+                reactionTime: reactionTime,
+                timestamp: new Date().toISOString()
+            };
+            
+            if (decision === 'keep') {
+                trialData.feedback = 'none';
+                trialData.earnings = 5;
+                trialData.successProbability = null;
+                experimentData.trials.push(trialData);
+                showScreen('keepResult');
+            } else {
+                // 投资决策，需要显示等待和反馈
+                trialData.feedback = 'pending';
+                experimentData.trials.push(trialData);
+                showScreen('waiting');
+                
+                // 获取当前的成功概率
+                const successProbability = getSuccessProbability();
+                
+                // 随机延迟（1000-4000ms）
+                const delay = 1000 + Math.random() * 3000;
+                
+                setTimeout(() => {
+                    // 根据概率决定反馈
+                    const randomValue = Math.random();
+                    const isSuccess = randomValue < successProbability;
+                    
+                    // 更新trial数据
+                    const lastTrialIndex = experimentData.trials.length - 1;
+                    experimentData.trials[lastTrialIndex].feedback = isSuccess ? 'success' : 'failure';
+                    experimentData.trials[lastTrialIndex].successProbability = successProbability;
+                    experimentData.trials[lastTrialIndex].earnings = isSuccess ? 7.5 : 0;
+                    
+                    // 显示反馈
+                    if (isSuccess) {
+                        showScreen('success');
+                    } else {
+                        showScreen('failure');
+                    }
+                }, delay);
+            }
+        }
+
+        // 继续按钮事件
+        document.getElementById('keep-continue').addEventListener('click', nextTrial);
+        document.getElementById('success-continue').addEventListener('click', nextTrial);
+        document.getElementById('failure-continue').addEventListener('click', nextTrial);
+
+        // 下一个试次
+        function nextTrial() {
+            experimentData.currentTrial++;
+            
+            if (experimentData.isPractice) {
+                // 练习试次
+                experimentData.currentTrialInBlock++;
+                
+                // 检查是否完成练习试次
+                if (experimentData.currentTrial > experimentData.practiceTrials) {
+                    showScreen('practiceEnd');
+                    return;
+                }
+            } else {
+                // 正式试次
+                experimentData.currentTrialInBlock++;
+                
+                // 检查是否完成当前block（30个试次）
+                if (experimentData.currentTrialInBlock > 30) {
+                    // 切换到下一个block
+                    experimentData.currentBlock++;
+                    
+                    // 检查是否完成所有block
+                    if (experimentData.currentBlock >= experimentData.blockOrder.length) {
+                        // 实验结束
+                        showScreen('end');
+                        // 设置下载按钮事件
+                        document.getElementById('download-data-btn').addEventListener('click', exportToExcel);
+                        return;
+                    } else {
+                        // 重置block试次计数，切换到下一个block
+                        experimentData.currentTrialInBlock = 1;
+                        experimentData.blockType = experimentData.blockOrder[experimentData.currentBlock];
+                    }
+                }
+            }
+            
+            updateProgressBar();
+            
+            // 显示注视点然后决策屏
+            showScreen('fixation');
+            setTimeout(() => {
+                showScreen('decision');
+            }, 800);
+        }
+
+        // 开始正式实验
+        document.getElementById('start-formal-button').addEventListener('click', () => {
+            experimentData.isPractice = false;
+            experimentData.currentTrial = experimentData.practiceTrials + 1;
+            experimentData.currentTrialInBlock = 1;
+            experimentData.currentBlock = 0;
+            updateProgressBar();
+            
+            showScreen('fixation');
+            setTimeout(() => {
+                showScreen('decision');
+            }, 800);
+        });
+
+        // 创建老年人剪影头像
+        const avatar = document.querySelector('.avatar-img');
+        if (avatar) {
+            avatar.style.background = 'linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%)';
+            avatar.style.display = 'flex';
+            avatar.style.justifyContent = 'center';
+            avatar.style.alignItems = 'center';
+            avatar.style.fontSize = '100px';
+            avatar.textContent = '👴';
+        }
+
+        // 初始化
+        updateProgressBar();
+    </script>
+</body>
+</html>
