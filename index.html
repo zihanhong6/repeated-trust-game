@@ -6,8 +6,6 @@
     <title>时间银行投资游戏 - 助人者组</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <style>
-        /* 样式与受助者组完全相同，此处省略，实际应复制受助者组的完整样式代码 */
-        /* 为节省篇幅，请直接复制受助者组的<style>部分到这里 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
@@ -130,7 +128,7 @@
 </head>
 <body>
     <div class="container" id="container">
-        <!-- 欢迎 + 总指导语（与受助者组相同） -->
+        <!-- 欢迎 + 总指导语 -->
         <div id="welcome-screen">
             <h1>你好，欢迎参加本次实验！</h1>
             <div class="instructions">
@@ -217,7 +215,7 @@
             </div>
         </div>
 
-        <!-- 投资游戏详细规则（助人者版，注意表述） -->
+        <!-- 投资游戏详细规则（助人者版） -->
         <div id="game-rule-screen" class="hidden">
             <div class="instructions">
                 <p>接下来，您将与王建国、张秀英、孙德明完成一系列投资游戏。</p>
@@ -242,7 +240,7 @@
             </div>
         </div>
 
-        <!-- 决策屏（与受助者组相同） -->
+        <!-- 决策屏（练习和正式共用） -->
         <div id="decision-screen" class="hidden">
             <div class="progress-text"><span id="trial-phase">练习</span> 试次 <span id="trial-count">0</span>/<span id="total-trials">4</span></div>
             <div class="progress-bar"><div class="progress" id="progress-bar"></div></div>
@@ -306,7 +304,7 @@
             </div>
         </div>
 
-        <!-- 对象完成总结屏（新增） -->
+        <!-- 对象完成总结屏 -->
         <div id="object-summary-screen" class="hidden">
             <div class="summary-box" id="object-summary-content"></div>
             <div class="button-container">
@@ -314,7 +312,7 @@
             </div>
         </div>
 
-        <!-- 注意力检测题（助人者版：您为谁提供的互助次数最多？） -->
+        <!-- 注意力检测题（助人者版） -->
         <div id="attention-screen" class="hidden">
             <p>以下三人中，您为谁提供的互助次数最多？</p>
             <div class="attention-options">
@@ -358,7 +356,7 @@
     </div>
 
     <script>
-        // ==================== 全局变量（助人者组特有） ====================
+        // ==================== 全局变量 ====================
         const experimentData = {
             participantId: 'P' + Date.now(),
             group: '助人者',
@@ -410,10 +408,11 @@
 
         let currentTrialData = {};
 
-        // ==================== 辅助函数（与受助者组完全相同） ====================
+        // ==================== 辅助函数 ====================
         function showScreen(screenName) {
             Object.values(screens).forEach(s => s?.classList.add('hidden'));
             if (screens[screenName]) screens[screenName].classList.remove('hidden');
+            else console.error('屏幕不存在:', screenName);
         }
 
         function showFixationAndThen(callback, screenName = 'fixation1') {
@@ -522,17 +521,15 @@
             showFixationAndThen(() => showScreen('writing'), 'fixation1');
         });
 
+        // 修正：只获取故事内容，不再获取六个词语
         document.getElementById('writing-next').addEventListener('click', () => {
-            let words = [];
-            for (let i = 1; i <= 6; i++) {
-                let w = document.getElementById(`word${i}`).value.trim();
-                if (w === '') { alert('请填写所有六个词语'); return; }
-                words.push(w);
-            }
             let story = document.getElementById('story').value.trim();
-            if (story === '') { alert('请填写您的故事'); return; }
-            experimentData.writing.words = words;
+            if (story === '') {
+                alert('请填写您的故事');
+                return;
+            }
             experimentData.writing.story = story;
+            experimentData.writing.words = []; // 留空
             showFixationAndThen(() => showScreen('manipulation'), 'fixation2');
         });
 
@@ -681,8 +678,7 @@
                 '给予者评分': experimentData.manipulation.giver,
                 '帮助者评分': experimentData.manipulation.helper,
                 '提供者评分': experimentData.manipulation.provider,
-                '六个词语': experimentData.writing.words.join(';'),
-                '故事': experimentData.writing.story,
+                '故事': experimentData.writing.story,  // 直接显示故事
                 '注意力检测': experimentData.attention,
                 '年龄': experimentData.demographics.age,
                 '性别': experimentData.demographics.gender
