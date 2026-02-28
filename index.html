@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>时间银行投资游戏 - 助人者组</title>
+    <title>时间银行 - 助人者组</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <style>
+        /* 样式与受助者组完全相同，此处仅保留关键样式，实际应与受助者组保持一致 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
@@ -52,8 +53,6 @@
         .button-success { background-color: #2ecc71; color: white; font-size: 28px; padding: 20px 40px; }
         .button-success:hover { background-color: #27ae60; transform: translateY(-3px); }
 
-        .word-inputs { display: flex; flex-direction: column; gap: 15px; margin: 30px 0; }
-        .word-input { width: 100%; padding: 15px; font-size: 24px; border: 2px solid #bdc3c7; border-radius: 8px; }
         .story-textarea { width: 100%; height: 200px; padding: 15px; font-size: 24px; border: 2px solid #bdc3c7; border-radius: 8px; resize: vertical; margin-top: 20px; }
 
         .rating-container { margin: 40px 0; }
@@ -68,29 +67,41 @@
         .rating-button:hover, .rating-button.selected { background-color: #3498db; color: white; transform: scale(1.1); }
         .rating-labels { display: flex; justify-content: space-between; margin-top: 10px; font-size: 24px; color: #7f8c8d; }
 
-        .service-table { width: 100%; border-collapse: collapse; margin: 40px 0; font-size: 28px; }
-        .service-table th, .service-table td { border: 2px solid #bdc3c7; padding: 15px; text-align: center; }
-        .service-table th { background-color: #ecf0f1; font-weight: bold; }
-        .color-red { color: #e74c3c; font-weight: bold; }
-        .color-blue { color: #2980b9; font-weight: bold; }
-        .color-green { color: #27ae60; font-weight: bold; }
-
         .fixation { font-size: 100px; font-weight: bold; color: #2c3e50; margin: 60px 0; }
 
         .decision-header { font-size: 32px; margin-bottom: 20px; }
         .partner-type { font-size: 28px; margin-bottom: 10px; color: #2c3e50; }
         .avatar {
-            width: 200px; height: 200px; background: #ecf0f1; border-radius: 50%;
-            margin: 20px auto; display: flex; align-items: center; justify-content: center;
+            width: 200px; height: 200px; border-radius: 50%;
+            margin: 10px auto 5px;
+            display: flex; align-items: center; justify-content: center;
             font-size: 100px; border: 5px solid #bdc3c7;
+            background-size: cover;
         }
+        .avatar-red { background-color: #fceaea; border-color: #e74c3c; }
+        .avatar-blue { background-color: #eaf2f8; border-color: #2980b9; }
+        .avatar-green { background-color: #eafaf1; border-color: #27ae60; }
+        .avatar-gray { background-color: #ecf0f1; border-color: #95a5a6; }
+
+        .partner-name {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .name-red { color: #e74c3c; }
+        .name-blue { color: #2980b9; }
+        .name-green { color: #27ae60; }
+        .name-gray { color: #7f8c8d; }
+
+        .partner-desc { font-size: 26px; margin-top: 5px; color: #2c3e50; }
+
         .decision-options { display: flex; justify-content: center; gap: 60px; margin-top: 30px; }
         .decision-button {
             width: 220px; height: 220px; border: none; border-radius: 15px;
             font-size: 40px; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
-        .invest-button { background-color: #2ecc71; color: white; }
-        .invest-button:hover { background-color: #27ae60; transform: scale(1.05); }
+        .share-button { background-color: #2ecc71; color: white; }
+        .share-button:hover { background-color: #27ae60; transform: scale(1.05); }
         .keep-button { background-color: #e74c3c; color: white; }
         .keep-button:hover { background-color: #c0392b; transform: scale(1.05); }
         .key-hint { font-size: 24px; color: #7f8c8d; margin-top: 10px; }
@@ -123,22 +134,24 @@
         }
         .attention-option.selected { border-color: #3498db; background: #d6eaf8; }
 
+        .left-align { text-align: left; }
+
         .hidden { display: none; }
     </style>
 </head>
 <body>
     <div class="container" id="container">
-        <!-- 欢迎 + 总指导语 -->
+        <!-- 欢迎 + 总指导语（已简化） -->
         <div id="welcome-screen">
             <h1>你好，欢迎参加本次实验！</h1>
             <div class="instructions">
-                <p>在本实验中，您将与几位老年人进行多轮投资游戏。</p>
-                <p>您的角色是投资方。每轮您将获得1个时间币。您需要决定是否将您的1个时间币分享给对方：</p>
-                <p>👉 若选择<strong>不分享</strong>，本轮结束。您获得1个时间币，对方获得0个。</p>
-                <p>👉 若选择<strong>分享</strong>，您交给对方的1个时间币将变成3个时间币，由对方决定是否回报：</p>
-                <p>　　• 若对方回报：您与对方各得2个时间币。</p>
-                <p>　　• 若对方不回报：您得0个，对方得3个时间币。</p>
-                <p>最终报酬包含15元基础参与费，以及根据您获得的时间币按比例兑换的礼品。因此，请您认真对待每一轮决策，这直接影响您最后的收益。</p>
+                <p>您会跟几位老年人共同完成本次实验。</p>
+                <p>每轮您有1个时间币。您可以决定：</p>
+                <p>👉 <strong>自己留着</strong>：您得1个，对方得0个。</p>
+                <p>👉 <strong>分享给老年人</strong>：您给他的1个会变成3个。对方可以选择：</p>
+                <p>　　• 平分：每人得2个。</p>
+                <p>　　• 独吞：他得3个，您得0个。</p>
+                <p>实验结束后，您可根据赢得的时间币兑换不同价值的礼品。您的目标是尽可能获得更多的时间币。请认真对待每一次选择！</p>
             </div>
             <div class="button-container">
                 <button class="button button-primary" id="welcome-confirm">确认，开始实验 (J)</button>
@@ -152,8 +165,7 @@
 
         <!-- 启动写作（助人者版） -->
         <div id="writing-screen" class="hidden">
-            <p>请您认真回忆近期内，在日常生活中您印象最深的一次<strong>助人行为</strong>。</p>
-            <p>请详细描述您的助人故事（100字左右）：</p>
+            <p>请您想一件最近您帮助别人的事，把经过写下来（100字左右）：</p>
             <textarea class="story-textarea" id="story" placeholder="请在这里写下您的故事..."></textarea>
             <div class="button-container">
                 <button class="button button-primary" id="writing-next">继续 (J)</button>
@@ -165,26 +177,26 @@
             <div class="fixation">+</div>
         </div>
 
-        <!-- 操纵检验（助人者版） -->
+        <!-- 操纵检验（助人者版 - 通俗化） -->
         <div id="manipulation-screen" class="hidden">
-            <p>请评价您在刚才所写情境中的角色感知（1–7分）：</p>
+            <p>请根据刚才写的事，回答下面几个问题（1–7分）：</p>
             <div class="rating-container">
                 <div class="rating-item">
-                    <div class="rating-label">作为“给予者”的程度</div>
+                    <div class="rating-label">您在多大程度上是主动帮助别人的人？</div>
                     <div class="rating-scale" id="rating1-scale">
                         <button class="rating-button" data-value="1">1</button><button class="rating-button" data-value="2">2</button><button class="rating-button" data-value="3">3</button>
                         <button class="rating-button" data-value="4">4</button><button class="rating-button" data-value="5">5</button><button class="rating-button" data-value="6">6</button><button class="rating-button" data-value="7">7</button>
                     </div>
                 </div>
                 <div class="rating-item">
-                    <div class="rating-label">作为“帮助者”的程度</div>
+                    <div class="rating-label">您在多大程度上是愿意伸出援手的人？</div>
                     <div class="rating-scale" id="rating2-scale">
                         <button class="rating-button" data-value="1">1</button><button class="rating-button" data-value="2">2</button><button class="rating-button" data-value="3">3</button>
                         <button class="rating-button" data-value="4">4</button><button class="rating-button" data-value="5">5</button><button class="rating-button" data-value="6">6</button><button class="rating-button" data-value="7">7</button>
                     </div>
                 </div>
                 <div class="rating-item">
-                    <div class="rating-label">作为“提供者”的程度</div>
+                    <div class="rating-label">您在多大程度上是乐于提供帮助的人？</div>
                     <div class="rating-scale" id="rating3-scale">
                         <button class="rating-button" data-value="1">1</button><button class="rating-button" data-value="2">2</button><button class="rating-button" data-value="3">3</button>
                         <button class="rating-button" data-value="4">4</button><button class="rating-button" data-value="5">5</button><button class="rating-button" data-value="6">6</button><button class="rating-button" data-value="7">7</button>
@@ -197,44 +209,37 @@
             </div>
         </div>
 
-        <!-- 情境引入（助人者版） -->
-        <div id="scenario-screen" class="hidden">
-            <p>您好，现在请您想象以下情境：</p>
-            <p>您所在的社区正在实施“时间银行互助养老”的服务项目。<span class="color-red">王建国</span>、<span class="color-blue">张秀英</span>、<span class="color-green">孙德明</span>是需要被服务的高龄老年人。在时间银行中，1个时间币可以兑换1小时的助老服务。</p>
-            <p><strong>其中，您曾经对王建国和张秀英提供过助老服务，并得到了相应的时间币。</strong></p>
-            <h2>过往服务记录</h2>
-            <table class="service-table">
-                <tr><th>被服务者姓名</th><th>您提供服务的次数</th><th>获得的时间币</th></tr>
-                <tr><td class="color-red">王建国</td><td>20次</td><td>20时间币</td></tr>
-                <tr><td class="color-blue">张秀英</td><td>8次</td><td>8时间币</td></tr>
-                <tr><td class="color-green">孙德明</td><td>0次</td><td>0时间币</td></tr>
-            </table>
+        <!-- 情境引入（助人者版 - 精简左对齐） -->
+        <div id="scenario-screen" class="hidden left-align">
+            <p>请您想象，您现在生活在养老社区，那里有“时间银行”服务。</p>
+            <p>王建国、张秀英、孙德明是需要被服务的高龄老人。</p>
+            <p>1个时间币可兑换1小时服务。</p>
+            <p><strong>过去半年，您曾帮助过王建国和张秀英</strong></p>
             <div class="button-container">
                 <button class="button button-secondary" id="scenario-prev">返回</button>
                 <button class="button button-primary" id="scenario-next">继续 (J)</button>
             </div>
         </div>
 
-        <!-- 投资游戏详细规则（助人者版） -->
+        <!-- 游戏规则（已简化） -->
         <div id="game-rule-screen" class="hidden">
             <div class="instructions">
-                <p>接下来，您将与王建国、张秀英、孙德明完成一系列投资游戏。</p>
-                <p><strong>注意：您曾为王建国提供多次助老服务，您曾为张秀英提供少次助老服务，您没有给孙德明提供过助老服务。</strong></p>
-                <p>您的角色是<strong>投资方</strong>。每轮您将获得1个时间币。您需要决定是否将您的1个时间币投资给对方。</p>
-                <p>• 如果选择<strong>保留</strong>：本轮结束，你们各得1个时间币。</p>
-                <p>• 如果选择<strong>投资</strong>：您交给对方的1个时间币将变成3个时间币，对方将决定是独吞还是平分。</p>
-                <p>　　- 如果对方选择<strong>独吞</strong>：他将获得全部3个时间币，您得到0个。</p>
-                <p>　　- 如果对方选择<strong>平分</strong>：你们每人获得2个时间币。</p>
-                <p>每一轮结束后，您将看到本轮收益，并进入下一轮。您的最终报酬包含15元基础参与费，以及您获得的时间币按比例兑换的礼品。因此，请您认真对待每一轮决策。</p>
+                <p>接下来，您会跟这三位老人玩投资游戏。</p>
+                <p>您每轮有1个时间币。您可以：</p>
+                <p>• <strong>自己留着</strong>：您得1，对方得0。</p>
+                <p>• <strong>分享给他</strong>：您给的1个会变成3个。对方选择：</p>
+                <p>　　- 平分：每人得2。</p>
+                <p>　　- 独吞：他得3，您得0。</p>
+                <p>游戏币最后能换礼品，请认真选择。</p>
             </div>
             <div class="button-container">
-                <button class="button button-primary" id="rule-next">我明白了，开始练习 (J)</button>
+                <button class="button button-primary" id="rule-next">我懂了，开始练习 (J)</button>
             </div>
         </div>
 
         <!-- 练习开始指导语 -->
         <div id="practice-start-screen" class="hidden">
-            <p>接下来将进行四次练习，在练习阶段，您将熟悉实验流程和操作方式。练习试次不计入正式实验数据。</p>
+            <p>先练习4次，熟悉一下。练习结果不算正式数据。</p>
             <div class="button-container">
                 <button class="button button-primary" id="practice-start-btn">开始练习 (J)</button>
             </div>
@@ -245,16 +250,20 @@
             <div class="progress-text"><span id="trial-phase">练习</span> 试次 <span id="trial-count">0</span>/<span id="total-trials">4</span></div>
             <div class="progress-bar"><div class="progress" id="progress-bar"></div></div>
             <div class="partner-type" id="partner-type-indicator"></div>
-            <div class="decision-header">您有1个时间币，是否投资给 <span id="current-partner-name" class="color-red">王建国</span> ？</div>
-            <div class="avatar"><span id="avatar-emoji">👴</span></div>
+            <div class="avatar" id="avatar-container">
+                <span id="avatar-emoji">👤</span>
+            </div>
+            <div class="partner-name" id="partner-name"></div>
+            <div class="partner-desc" id="partner-desc"></div>
+            <div class="decision-header">您有1个时间币，要分享吗？</div>
             <div class="decision-options">
                 <div class="decision-option">
-                    <button class="decision-button invest-button" id="invest-btn">投资</button>
+                    <button class="decision-button share-button" id="share-btn">分享</button>
                     <div class="key-hint">(按F键)</div>
                 </div>
                 <div class="decision-option">
-                    <button class="decision-button keep-button" id="keep-btn">保留</button>
-                    <div class="key-hint">(按J键)</div>
+                    <button class="decision-button keep-button" id="keep-btn">自己留着</button>
+                    <div class="key-hint">(按G键)</div>
                 </div>
             </div>
         </div>
@@ -262,7 +271,7 @@
         <!-- 保留结果屏 -->
         <div id="keep-screen" class="hidden">
             <div class="feedback">
-                <p>您选择了<span class="bold">保留</span>，本轮获得1时间币。</p>
+                <p>您选择了<span class="bold">自己留着</span>，本轮获得1时间币。</p>
             </div>
             <div class="button-container">
                 <button class="button button-primary" id="keep-continue">继续 (J)</button>
@@ -272,7 +281,7 @@
         <!-- 等待屏 -->
         <div id="waiting-screen" class="hidden">
             <div class="feedback waiting">
-                <p>您选择了<span class="bold">投资</span>，请等待对方回应...</p>
+                <p>您选择了<span class="bold">分享</span>，请等待对方回应...</p>
             </div>
         </div>
 
@@ -298,7 +307,8 @@
 
         <!-- 练习结束指导语 -->
         <div id="practice-end-screen" class="hidden">
-            <p>练习试次结束，接下来进入正式实验。正式实验包含90个试次，您将依次与三位对象互动。</p>
+            <p>练习结束。</p>
+            <p>接下来开始正式实验，共90次。您会跟三位志愿者轮流互动。</p>
             <div class="button-container">
                 <button class="button button-primary" id="start-formal-btn">开始正式实验 (J)</button>
             </div>
@@ -314,7 +324,7 @@
 
         <!-- 注意力检测题（助人者版） -->
         <div id="attention-screen" class="hidden">
-            <p>以下三人中，您为谁提供的互助次数最多？</p>
+            <p>三个人里，您帮助谁次数最多？</p>
             <div class="attention-options">
                 <div class="attention-option" data-partner="wang" id="attention-wang">王建国</div>
                 <div class="attention-option" data-partner="zhang" id="attention-zhang">张秀英</div>
@@ -361,7 +371,7 @@
             participantId: 'P' + Date.now(),
             group: '助人者',
             startTime: new Date().toISOString(),
-            writing: { words: [], story: '' },
+            writing: { story: '' },
             manipulation: { giver: null, helper: null, provider: null },
             trials: [],
             attention: null,
@@ -369,9 +379,33 @@
         };
 
         const partners = [
-            { name: '王建国', colorClass: 'color-red', type: '多次互助', index: 0 },
-            { name: '张秀英', colorClass: 'color-blue', type: '少次互助', index: 1 },
-            { name: '孙德明', colorClass: 'color-green', type: '无互助', index: 2 }
+            { 
+                name: '王建国', 
+                colorClass: 'avatar-red', 
+                nameColor: 'name-red',
+                type: '多次互助', 
+                index: 0,
+                emoji: '👨‍🦳',
+                desc: '过去半年里，您帮助过他 20 次'
+            },
+            { 
+                name: '张秀英', 
+                colorClass: 'avatar-blue', 
+                nameColor: 'name-blue',
+                type: '少次互助', 
+                index: 1,
+                emoji: '👵',
+                desc: '过去半年里，您帮助过他 8 次'
+            },
+            { 
+                name: '孙德明', 
+                colorClass: 'avatar-green', 
+                nameColor: 'name-green',
+                type: '无互助', 
+                index: 2,
+                emoji: '🧓',
+                desc: '过去半年里，您没有帮助过他'
+            }
         ];
 
         const probabilities = [0.7, 0.5, 0.3];
@@ -451,9 +485,12 @@
         function updateDecisionScreen() {
             if (isPractice) {
                 let partner = partners[2];
-                document.getElementById('current-partner-name').textContent = partner.name;
-                document.getElementById('current-partner-name').className = partner.colorClass;
+                document.getElementById('avatar-container').className = `avatar ${partner.colorClass}`;
+                document.getElementById('avatar-emoji').textContent = partner.emoji;
+                document.getElementById('partner-name').textContent = partner.name;
+                document.getElementById('partner-name').className = `partner-name ${partner.nameColor}`;
                 document.getElementById('partner-type-indicator').textContent = '练习对象';
+                document.getElementById('partner-desc').textContent = partner.desc;
                 currentTrialData = {
                     partnerIndex: 2,
                     partnerName: partner.name,
@@ -469,9 +506,12 @@
                 let objIdx = objectOrder[currentObjectIdx];
                 let partner = partners[objIdx];
                 let prob = objectTrialLists[objIdx][currentTrialInObject];
-                document.getElementById('current-partner-name').textContent = partner.name;
-                document.getElementById('current-partner-name').className = partner.colorClass;
+                document.getElementById('avatar-container').className = `avatar ${partner.colorClass}`;
+                document.getElementById('avatar-emoji').textContent = partner.emoji;
+                document.getElementById('partner-name').textContent = partner.name;
+                document.getElementById('partner-name').className = `partner-name ${partner.nameColor}`;
                 document.getElementById('partner-type-indicator').textContent = partner.type;
+                document.getElementById('partner-desc').textContent = partner.desc;
                 currentTrialData = {
                     partnerIndex: objIdx,
                     partnerName: partner.name,
@@ -485,7 +525,6 @@
                 let progressPercent = (globalTrialNum / formalTrials) * 100;
                 document.getElementById('progress-bar').style.width = progressPercent + '%';
             }
-            document.getElementById('avatar-emoji').textContent = '👴';
         }
 
         function recordTrial(decision, reactionTime, feedback, earnings) {
@@ -512,7 +551,7 @@
             let objTrials = experimentData.trials.filter(t => t.phase === '正式' && t.partner === partner.name);
             let totalEarnings = objTrials.reduce((sum, t) => sum + t.earnings, 0);
             document.getElementById('object-summary-content').innerHTML = 
-                `您与 <span class="${partner.colorClass}">${partner.name}</span> 的互动结束。<br>共获得 <strong>${totalEarnings}</strong> 时间币。`;
+                `您与 <span class="${partner.nameColor}">${partner.name}</span> 的互动结束。<br>共获得 <strong>${totalEarnings}</strong> 时间币。`;
             showScreen('objectSummary');
         }
 
@@ -521,7 +560,6 @@
             showFixationAndThen(() => showScreen('writing'), 'fixation1');
         });
 
-        // 修正：只获取故事内容，不再获取六个词语
         document.getElementById('writing-next').addEventListener('click', () => {
             let story = document.getElementById('story').value.trim();
             if (story === '') {
@@ -529,7 +567,6 @@
                 return;
             }
             experimentData.writing.story = story;
-            experimentData.writing.words = []; // 留空
             showFixationAndThen(() => showScreen('manipulation'), 'fixation2');
         });
 
@@ -567,7 +604,7 @@
             showScreen('decision');
         });
 
-        document.getElementById('invest-btn').addEventListener('click', () => makeDecision('invest'));
+        document.getElementById('share-btn').addEventListener('click', () => makeDecision('share'));
         document.getElementById('keep-btn').addEventListener('click', () => makeDecision('keep'));
 
         function makeDecision(decision) {
@@ -583,7 +620,7 @@
                     let isSuccess = Math.random() < prob;
                     let feedback = isSuccess ? '成功' : '失败';
                     let earnings = isSuccess ? 2 : 0;
-                    recordTrial('投资', rt, feedback, earnings);
+                    recordTrial('分享', rt, feedback, earnings);
                     if (isSuccess) showScreen('success');
                     else showScreen('failure');
                 }, delay);
@@ -675,10 +712,10 @@
                 '被试ID': experimentData.participantId,
                 '组别': experimentData.group,
                 '实验开始时间': experimentData.startTime,
-                '给予者评分': experimentData.manipulation.giver,
-                '帮助者评分': experimentData.manipulation.helper,
-                '提供者评分': experimentData.manipulation.provider,
-                '故事': experimentData.writing.story,  // 直接显示故事
+                '主动帮助别人的程度': experimentData.manipulation.giver,
+                '愿意伸出援手的程度': experimentData.manipulation.helper,
+                '乐于提供帮助的程度': experimentData.manipulation.provider,
+                '故事': experimentData.writing.story,
                 '注意力检测': experimentData.attention,
                 '年龄': experimentData.demographics.age,
                 '性别': experimentData.demographics.gender
@@ -710,6 +747,7 @@
             XLSX.writeFile(wb, filename);
         }
 
+        // 键盘事件：F=分享，G=保留，J=继续
         document.addEventListener('keydown', (e) => {
             const key = e.key.toLowerCase();
             if (e.repeat) return;
@@ -730,7 +768,9 @@
                 else if (visible === 'attention' && !document.getElementById('attention-next').disabled) document.getElementById('attention-next').click();
                 else if (visible === 'demographics' && !document.getElementById('demographics-next').disabled) document.getElementById('demographics-next').click();
             } else if (key === 'f' && visible === 'decision') {
-                document.getElementById('invest-btn').click();
+                document.getElementById('share-btn').click();
+            } else if (key === 'g' && visible === 'decision') {
+                document.getElementById('keep-btn').click();
             }
         });
 
