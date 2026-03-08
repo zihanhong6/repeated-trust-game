@@ -6,7 +6,7 @@
     <title>时间银行 - 助人者组</title>
     <script src="https://cdn.sheetjs.com/xlsx-0.19.3/package/dist/xlsx.full.min.js"></script>
     <style>
-        /* 样式与受助者组完全相同，此处仅保留关键样式，实际应与受助者组保持一致 */
+        /* 样式与受助者组完全相同，此处省略（实际应完整复制） */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Microsoft YaHei', Arial, sans-serif;
@@ -244,7 +244,7 @@
                 <button class="button button-primary" id="practice-start-btn">开始练习 (J)</button>
             </div>
         </div>
-
+        
         <!-- 决策屏（练习和正式共用） -->
         <div id="decision-screen" class="hidden">
             <div class="progress-text"><span id="trial-phase">练习</span> 试次 <span id="trial-count">0</span>/<span id="total-trials">4</span></div>
@@ -307,8 +307,7 @@
 
         <!-- 练习结束指导语 -->
         <div id="practice-end-screen" class="hidden">
-            <p>练习结束。</p>
-            <p>接下来开始正式实验，共90次。您会跟三位志愿者轮流互动。</p>
+            <p>练习结束。接下来正式实验，共180次，您会跟三位轮流玩。</p>
             <div class="button-container">
                 <button class="button button-primary" id="start-formal-btn">开始正式实验 (J)</button>
             </div>
@@ -409,7 +408,7 @@
         ];
 
         const probabilities = [0.7, 0.5, 0.3];
-        const repetitions = 10;
+        const repetitions = 20;  // 修改1
 
         let objectOrder = [];
         let objectTrialLists = [];
@@ -417,7 +416,7 @@
         let currentTrialInObject = 0;
         let isPractice = true;
         const practiceTrials = 4;
-        const formalTrials = 90;
+        const formalTrials = 180;  // 修改2
 
         const screens = {
             welcome: document.getElementById('welcome-screen'),
@@ -519,7 +518,7 @@
                     startTime: null
                 };
                 document.getElementById('trial-phase').textContent = '正式';
-                let globalTrialNum = currentObjectIdx * 30 + currentTrialInObject + 1;
+                let globalTrialNum = currentObjectIdx * 60 + currentTrialInObject + 1;  // 每个对象60次
                 document.getElementById('trial-count').textContent = globalTrialNum;
                 document.getElementById('total-trials').textContent = formalTrials;
                 let progressPercent = (globalTrialNum / formalTrials) * 100;
@@ -528,7 +527,7 @@
         }
 
         function recordTrial(decision, reactionTime, feedback, earnings) {
-            let globalTrialNum = isPractice ? (currentTrialInObject + 1) : (currentObjectIdx * 30 + currentTrialInObject + 1);
+            let globalTrialNum = isPractice ? (currentTrialInObject + 1) : (currentObjectIdx * 60 + currentTrialInObject + 1);
             let partnerInfo = isPractice ? partners[2] : partners[objectOrder[currentObjectIdx]];
             let trialRecord = {
                 trialNumber: globalTrialNum,
@@ -644,7 +643,7 @@
                 }
             } else {
                 currentTrialInObject++;
-                if (currentTrialInObject < 30) {
+                if (currentTrialInObject < 60) {  // 修改3
                     showFixationAndThen(() => {
                         updateDecisionScreen();
                         showScreen('decision');
