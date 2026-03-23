@@ -145,10 +145,10 @@
         <div id="welcome-screen">
             <h1>你好，欢迎参加本次实验！</h1>
             <div class="instructions">
-                <p>您会跟几位老年人共同完成本次实验。</p>
+                <p>您会跟几位老年人一起玩这个游戏。</p>
                 <p>每轮您有1个时间币。您可以决定：</p>
                 <p>👉 <strong>自己留着</strong>：您得1个，对方得0个。</p>
-                <p>👉 <strong>分享给老年人</strong>：您给他的1个会变成3个。对方可以选择：</p>
+                <p>👉 <strong>分享给他</strong>：您给他的1个会变成3个。对方可以选择：</p>
                 <p>　　• 平分：每人得2个。</p>
                 <p>　　• 独吞：他得3个，您得0个。</p>
                 <p>实验结束后，您可根据赢得的时间币兑换不同价值的礼品。您的目标是尽可能获得更多的时间币。请认真对待每一次选择！</p>
@@ -212,9 +212,9 @@
         <!-- 情境引入（助人者版 - 精简左对齐） -->
         <div id="scenario-screen" class="hidden left-align">
             <p>请您想象，您现在生活在养老社区，那里有“时间银行”服务。</p>
-            <p>王建国、张秀英、孙德明是需要被服务的高龄老人。</p>
-            <p>1个时间币可兑换1小时服务。</p>
-            <p><strong>过去半年，您曾帮助过王建国和张秀英</strong></p>
+            <p>王建国、张秀英、孙德明是需要帮助的老人。</p>
+            <p>您拥有时间币，1个时间币可兑换1小时服务。</p>
+            <p><strong>其中，您在过去半年帮助过王建国和张秀英</strong></p>
             <div class="button-container">
                 <button class="button button-secondary" id="scenario-prev">返回</button>
                 <button class="button button-primary" id="scenario-next">继续 (J)</button>
@@ -230,7 +230,7 @@
                 <p>• <strong>分享给他</strong>：您给的1个会变成3个。对方选择：</p>
                 <p>　　- 平分：每人得2。</p>
                 <p>　　- 独吞：他得3，您得0。</p>
-                <p>游戏币最后能换礼品，请认真选择。</p>
+                <p>时间币最后能兑换礼品，请认真选择。</p>
             </div>
             <div class="button-container">
                 <button class="button button-primary" id="rule-next">我懂了，开始练习 (J)</button>
@@ -244,7 +244,7 @@
                 <button class="button button-primary" id="practice-start-btn">开始练习 (J)</button>
             </div>
         </div>
-        
+
         <!-- 决策屏（练习和正式共用） -->
         <div id="decision-screen" class="hidden">
             <div class="progress-text"><span id="trial-phase">练习</span> 试次 <span id="trial-count">0</span>/<span id="total-trials">4</span></div>
@@ -408,7 +408,7 @@
         ];
 
         const probabilities = [0.7, 0.5, 0.3];
-        const repetitions = 20;  // 修改1
+        const repetitions = 20;  // 每个概率重复20次
 
         let objectOrder = [];
         let objectTrialLists = [];
@@ -416,7 +416,7 @@
         let currentTrialInObject = 0;
         let isPractice = true;
         const practiceTrials = 4;
-        const formalTrials = 180;  // 修改2
+        const formalTrials = 180;  // 总正式试次180
 
         const screens = {
             welcome: document.getElementById('welcome-screen'),
@@ -518,7 +518,7 @@
                     startTime: null
                 };
                 document.getElementById('trial-phase').textContent = '正式';
-                let globalTrialNum = currentObjectIdx * 60 + currentTrialInObject + 1;  // 每个对象60次
+                let globalTrialNum = currentObjectIdx * 60 + currentTrialInObject + 1;
                 document.getElementById('trial-count').textContent = globalTrialNum;
                 document.getElementById('total-trials').textContent = formalTrials;
                 let progressPercent = (globalTrialNum / formalTrials) * 100;
@@ -613,7 +613,8 @@
                 showScreen('keep');
             } else {
                 showScreen('waiting');
-                let delay = 1000 + Math.random() * 3000;
+                // 等待时间改为 500-2000ms
+                let delay = 500 + Math.random() * 1500;
                 setTimeout(() => {
                     let prob = currentTrialData.probability;
                     let isSuccess = Math.random() < prob;
@@ -643,7 +644,7 @@
                 }
             } else {
                 currentTrialInObject++;
-                if (currentTrialInObject < 60) {  // 修改3
+                if (currentTrialInObject < 60) {
                     showFixationAndThen(() => {
                         updateDecisionScreen();
                         showScreen('decision');
